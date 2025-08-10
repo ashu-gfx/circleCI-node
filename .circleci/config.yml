@@ -7,12 +7,6 @@ jobs:
     steps:
       - checkout
 
-      # Restore cached dependencies if available
-      - restore_cache:
-          keys:
-            - v1-deps-{{ checksum "package-lock.json" }}
-            - v1-deps-
-
       # Install dependencies
       - run:
           name: Install dependencies
