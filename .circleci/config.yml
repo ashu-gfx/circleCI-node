@@ -1,0 +1,60 @@
+version: 2.1
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/node:20.10  # Main container for Node.js
+      - image: circleci/mongo:6.0  # MongoDB service container
+    environment:
+      MONGO_URI: mongodb://localhost:27017/testdb
+    steps:
+      - checkout
+
+      # Cache dependencies to speed up builds
+      - restore_cache:
+          keys:
+            - v1-deps-{{ checksum "package-lock.json" }}
+            - v1-deps-
+
+      # Install root dependencies
+      - run:
+          name: Install Backend Dependencies
+          command: npm install
+
+      # Install frontend dependencies (if frontend is in a subfolder)
+      - run:
+          name: Install Frontend Dependencies
+          command: |
+            cd client
+            npm install
+
+      # Save cache for next build
+      - save_cache:
+          paths:
+            - node_modules
+            - client/node_modules
+          key: v1-deps-{{ checksum "package-lock.json" }}
+
+      # Build frontend
+      - run:
+          name: Build Frontend
+          command: |
+            cd client
+            npm run build
+
+      # Run backend tests
+      - run:
+          name: Run Backend Tests
+          command: npm test
+
+      # Run frontend tests
+      - run:
+          name: Run Frontend Tests
+          command: |
+            cd client
+            npm test
+
+workflows:
+  build_and_test_workflow:
+    jobs:
+      - build-and-test
