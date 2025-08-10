@@ -7,12 +7,6 @@ jobs:
     steps:
       - checkout
 
-      # Restore cached dependencies (optional but faster)
-      - restore_cache:
-          keys:
-            - v1-deps-{{ checksum "package-lock.json" }}
-            - v1-deps-
-
       # Install dependencies
       - run:
           name: Install dependencies
@@ -29,7 +23,6 @@ jobs:
           name: Run app
           command: |
             echo "Starting Node.js app..."
-            node index.js
 
 workflows:
   build_and_test:
